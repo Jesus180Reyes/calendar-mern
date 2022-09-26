@@ -10,14 +10,21 @@ import { uiStore } from '../../hooks/useUiStore';
 import { useCalendarStore } from '../../hooks/useCalendarStore';
 import { FabButton } from '../components/FabButton';
 import { FabDelete } from '../components/FabDelete';
+import { useEffect } from 'react';
+import { useAuthStore } from '../../hooks';
 
 
 
 
 export const CalendarPage = () => {
+  const { user, } = useAuthStore();
   const { openDateModal } = uiStore();
-  const { events, setActiveName } = useCalendarStore();
+  const { events, setActiveName, startLoadingEvents } = useCalendarStore();
   const [lastView, setLastView] = useState(localStorage.getItem('lastView') || 'week');
+  useEffect(() => {
+    startLoadingEvents();
+  }, []);
+
   const onDoubleClick = (event) => {
     // console.log({ doubleClick: event });
     openDateModal();
@@ -33,9 +40,11 @@ export const CalendarPage = () => {
   }
 
   const eventStyleGetter = (event, start, end, isSelected) => {
+    const isMyEvent = (user.uid === event.user._id) || (user.uid === event.user.uid);
+
 
     const style = {
-      backgroundColor: '#347CF7',
+      backgroundColor: isMyEvent ? '#347CF7' : '#465660',
       borderRadius: '0px',
       opacity: '0.8',
       color: 'white'
